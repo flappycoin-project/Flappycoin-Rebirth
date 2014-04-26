@@ -38,8 +38,8 @@ QString BitcoinUnits::name(int unit)
 {
     switch(unit)
     {
-    case BTC: return QString("MFLAP");
-    case BTC: return QString("kFLAP");
+    case MBTC: return QString("MFLAP");
+    case kBTC: return QString("kFLAP");
     case BTC: return QString("FLAP");
     case mBTC: return QString("mFLAP");
     case uBTC: return QString::fromUtf8("μFLAP");
