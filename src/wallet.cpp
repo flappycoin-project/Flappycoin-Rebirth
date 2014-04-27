@@ -641,12 +641,10 @@ void CWalletTx::GetAmounts(list<pair<CTxDestination, int64> >& listReceived,
     listSent.clear();
     strSentAccount = strFromAccount;
 
+    nFee = 0;
+    
     // Compute fee:
     int64 nDebit = GetDebit();
-    
-    // Fee Percentage:
-    nFee = 0.0005 * nDebit;
-    
     if (nDebit > 0) // debit>0 means we signed/sent this transaction
     {
         int64 nValueOut = GetValueOut();
