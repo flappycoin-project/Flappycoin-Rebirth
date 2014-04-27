@@ -1112,7 +1112,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees, uint256 prevHash)
         rand3 = generateMTRandom(seed, 24999);
         nSubsidy = (1 + rand3) * COIN;
     }
-    else if(nHeight < 600000)
+    else if(nHeight < 500000)
     {
         cseed_str = prevHash.ToString().substr(7,7);
         cseed = cseed_str.c_str();
@@ -1120,7 +1120,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees, uint256 prevHash)
         rand4 = generateMTRandom(seed, 12499);
         nSubsidy = (1 + rand4) * COIN;
     }
-    else if(nHeight < 700000)
+    else if(nHeight < 600000)
     {
         cseed_str = prevHash.ToString().substr(6,7);
         cseed = cseed_str.c_str();
