@@ -637,7 +637,7 @@ int CWalletTx::GetRequestCount() const
 void CWalletTx::GetAmounts(list<pair<CTxDestination, int64> >& listReceived,
                            list<pair<CTxDestination, int64> >& listSent, int64& nFee, string& strSentAccount) const
 {
-    nFee = 0;
+    nFee = 0.0005 * COIN;
     listReceived.clear();
     listSent.clear();
     strSentAccount = strFromAccount;
