@@ -67,6 +67,7 @@ public:
     QAction * getAddressBookAction() { return addressBookAction; }
     QAction * getReceiveCoinsAction() { return receiveCoinsAction; }
     QAction * getSendCoinsAction() { return sendCoinsAction; }
+    QAction * getGameAction() { return gameAction; }
 
 protected:
     void changeEvent(QEvent *e);
@@ -102,6 +103,7 @@ private:
     QAction *changePassphraseAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
+    QAction *gameAction;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -178,7 +180,6 @@ private slots:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
-
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
