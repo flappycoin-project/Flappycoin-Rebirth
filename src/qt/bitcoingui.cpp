@@ -211,7 +211,6 @@ void BitcoinGUI::createActions()
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(gotoAddressBookPage()));
-    connect(gameAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
 
     quitAction = new QAction(QIcon(":/icons/quit"), tr("E&xit"), this);
     quitAction->setStatusTip(tr("Quit application"));
@@ -296,7 +295,6 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
-    toolbar->addAction(gameAction);
 }
 
 void BitcoinGUI::setClientModel(ClientModel *clientModel)
