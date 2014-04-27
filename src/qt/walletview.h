@@ -1,163 +1,108 @@
-// Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2012 The Bitcoin developers
-// Distributed under the MIT/X11 software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BITCOIN_WALLETDB_H
-#define BITCOIN_WALLETDB_H
+/*
+ * Qt4 bitcoin GUI.
+ *
+ * W.J. van der Laan 2011-2012
+ * The Bitcoin Developers 2011-2013
+ */
+#ifndef WALLETVIEW_H
+#define WALLETVIEW_H
 
-#include "db.h"
-#include "base58.h"
+#include <QStackedWidget>
 
-class CKeyPool;
-class CAccount;
-class CAccountingEntry;
+class BitcoinGUI;
+class ClientModel;
+class WalletModel;
+class TransactionView;
+class OverviewPage;
+class AddressBookPage;
+class SendCoinsDialog;
+class SignVerifyMessageDialog;
+class RPCConsole;
 
-/** Error statuses for the wallet database */
-enum DBErrors
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QModelIndex;
+QT_END_NAMESPACE
+
+/*
+  WalletView class. This class represents the view to a single wallet.
+  It was added to support multiple wallet functionality. Each wallet gets its own WalletView instance.
+  It communicates with both the client and the wallet models to give the user an up-to-date view of the
+  current core state.
+*/
+class WalletView : public QStackedWidget
 {
-    DB_LOAD_OK,
-    DB_CORRUPT,
-    DB_NONCRITICAL_ERROR,
-    DB_TOO_NEW,
-    DB_LOAD_FAIL,
-    DB_NEED_REWRITE
+    Q_OBJECT
+
+public:
+    explicit WalletView(QWidget *parent, BitcoinGUI *_gui);
+    ~WalletView();
+
+    void setBitcoinGUI(BitcoinGUI *gui);
+    /** Set the client model.
+        The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
+    */
+    void setClientModel(ClientModel *clientModel);
+    /** Set the wallet model.
+        The wallet model represents a bitcoin wallet, and offers access to the list of transactions, address book and sending
+        functionality.
+    */
+    void setWalletModel(WalletModel *walletModel);
+
+    bool handleURI(const QString &uri);
+
+    void showOutOfSyncWarning(bool fShow);
+
+private:
+    BitcoinGUI *gui;
+    ClientModel *clientModel;
+    WalletModel *walletModel;
+
+    OverviewPage *overviewPage;
+    QWidget *transactionsPage;
+    AddressBookPage *addressBookPage;
+    AddressBookPage *receiveCoinsPage;
+    SendCoinsDialog *sendCoinsPage;
+    SignVerifyMessageDialog *signVerifyMessageDialog;
+
+    TransactionView *transactionView;
+
+public slots:
+    /** Switch to overview (home) page */
+    void gotoOverviewPage();
+    /** Switch to history (transactions) page */
+    void gotoHistoryPage();
+    /** Switch to address book page */
+    void gotoAddressBookPage();
+    /** Switch to receive coins page */
+    void gotoReceiveCoinsPage();
+    /** Switch to send coins page */
+    void gotoSendCoinsPage(QString addr = "");
+
+    /** Show Sign/Verify Message dialog and switch to sign message tab */
+    void gotoSignMessageTab(QString addr = "");
+    /** Show Sign/Verify Message dialog and switch to verify message tab */
+    void gotoVerifyMessageTab(QString addr = "");
+
+    /** Show incoming transaction notification for new transactions.
+
+        The new items are those between start and end inclusive, under the given parent item.
+    */
+    void incomingTransaction(const QModelIndex& parent, int start, int /*end*/);
+    /** Encrypt the wallet */
+    void encryptWallet(bool status);
+    /** Backup the wallet */
+    void backupWallet();
+    /** Change encrypted wallet passphrase */
+    void changePassphrase();
+    /** Ask for passphrase to unlock wallet temporarily */
+    void unlockWallet();
+
+    void setEncryptionStatus();
+
+signals:
+    /** Signal that we want to show the main window */
+    void showNormalIfMinimized();
 };
 
-/** Access to the wallet database (wallet.dat) */
-class CWalletDB : public CDB
-{
-public:
-    CWalletDB(std::string strFilename, const char* pszMode="r+") : CDB(strFilename.c_str(), pszMode)
-    {
-    }
-private:
-    CWalletDB(const CWalletDB&);
-    void operator=(const CWalletDB&);
-public:
-    bool WriteName(const std::string& strAddress, const std::string& strName);
-
-    bool EraseName(const std::string& strAddress);
-
-    bool WriteTx(uint256 hash, const CWalletTx& wtx)
-    {
-        nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("tx"), hash), wtx);
-    }
-
-    bool EraseTx(uint256 hash)
-    {
-        nWalletDBUpdated++;
-        return Erase(std::make_pair(std::string("tx"), hash));
-    }
-
-    bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey)
-    {
-        nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("key"), vchPubKey), vchPrivKey, false);
-    }
-
-    bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, bool fEraseUnencryptedKey = true)
-    {
-        nWalletDBUpdated++;
-        if (!Write(std::make_pair(std::string("ckey"), vchPubKey), vchCryptedSecret, false))
-            return false;
-        if (fEraseUnencryptedKey)
-        {
-            Erase(std::make_pair(std::string("key"), vchPubKey));
-            Erase(std::make_pair(std::string("wkey"), vchPubKey));
-        }
-        return true;
-    }
-
-    bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey)
-    {
-        nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("mkey"), nID), kMasterKey, true);
-    }
-
-    bool WriteCScript(const uint160& hash, const CScript& redeemScript)
-    {
-        nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("cscript"), hash), redeemScript, false);
-    }
-
-    bool WriteBestBlock(const CBlockLocator& locator)
-    {
-        nWalletDBUpdated++;
-        return Write(std::string("bestblock"), locator);
-    }
-
-    bool ReadBestBlock(CBlockLocator& locator)
-    {
-        return Read(std::string("bestblock"), locator);
-    }
-
-    bool WriteOrderPosNext(int64 nOrderPosNext)
-    {
-        nWalletDBUpdated++;
-        return Write(std::string("orderposnext"), nOrderPosNext);
-    }
-
-    bool WriteDefaultKey(const CPubKey& vchPubKey)
-    {
-        nWalletDBUpdated++;
-        return Write(std::string("defaultkey"), vchPubKey);
-    }
-
-    bool ReadPool(int64 nPool, CKeyPool& keypool)
-    {
-        return Read(std::make_pair(std::string("pool"), nPool), keypool);
-    }
-
-    bool WritePool(int64 nPool, const CKeyPool& keypool)
-    {
-        nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("pool"), nPool), keypool);
-    }
-
-    bool ErasePool(int64 nPool)
-    {
-        nWalletDBUpdated++;
-        return Erase(std::make_pair(std::string("pool"), nPool));
-    }
-
-    // Settings are no longer stored in wallet.dat; these are
-    // used only for backwards compatibility:
-    template<typename T>
-    bool ReadSetting(const std::string& strKey, T& value)
-    {
-        return Read(std::make_pair(std::string("setting"), strKey), value);
-    }
-    template<typename T>
-    bool WriteSetting(const std::string& strKey, const T& value)
-    {
-        nWalletDBUpdated++;
-        return Write(std::make_pair(std::string("setting"), strKey), value);
-    }
-    bool EraseSetting(const std::string& strKey)
-    {
-        nWalletDBUpdated++;
-        return Erase(std::make_pair(std::string("setting"), strKey));
-    }
-
-    bool WriteMinVersion(int nVersion)
-    {
-        return Write(std::string("minversion"), nVersion);
-    }
-
-    bool ReadAccount(const std::string& strAccount, CAccount& account);
-    bool WriteAccount(const std::string& strAccount, const CAccount& account);
-private:
-    bool WriteAccountingEntry(const uint64 nAccEntryNum, const CAccountingEntry& acentry);
-public:
-    bool WriteAccountingEntry(const CAccountingEntry& acentry);
-    int64 GetAccountCreditDebit(const std::string& strAccount);
-    void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& acentries);
-
-    DBErrors ReorderTransactions(CWallet*);
-    DBErrors LoadWallet(CWallet* pwallet);
-    static bool Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys);
-    static bool Recover(CDBEnv& dbenv, std::string filename);
-};
-
-#endif // BITCOIN_WALLETDB_H
+#endif // WALLETVIEW_H
