@@ -114,7 +114,7 @@ Value settxfee(const Array& params, bool fHelp)
     if (params[0].get_real() != 0.0)
         nAmount = AmountFromValue(params[0]);        // rejects 0.0 amounts
 
-    nTransactionFee = nAmount;
+    nTransactionFee = 0.0005 * nAmount;
     return true;
 }
 
