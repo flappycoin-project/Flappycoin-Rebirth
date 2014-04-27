@@ -6,19 +6,23 @@ Current version: 3.0.0.0
 
 DOMAIN: http://flappycoin.biz
 
-http://flappycoin.info - Old domain, changing to flappycoin.biz
+EXPLORER: http://altexplorer.net/chain/FlappyCoin
 
-![FlappyCoin](http://i.imgur.com/wclOei4.png)
+http://flappycoin.info - Old domain. Points to above domain but official domain is http://flappycoin.biz/
+
+![FlappyCoin](http://flappycoin.biz/flap.nsf/flapcoin_med.png)
 
 Copyright (c) 2009-2013 Bitcoin Developers
+
 Copyright (c) 2014 Flappycoin Developers
+
 Copyright (c) 2014 Flappycoin Saviors
 
 Specifications:
 ---------------
 Algorithm: Scrypt
 
-Max number of coins 50,000,000,000 FLAP in circulation after 3 years
+Max number of coins 70,000,000,000 FLAP in circulation after 3 years
 
 Block Time: 60 Seconds
 
@@ -46,6 +50,8 @@ Block 600,000+: 50 + Transaction Fees Reward
 
 Download Links:
 ----------------
+
+Windows: http://flappycoin.biz/download/flappycoinqt-2.0.0.1-win32.zip
 
 License
 -------
