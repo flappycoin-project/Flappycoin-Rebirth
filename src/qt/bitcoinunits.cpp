@@ -51,8 +51,8 @@ QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
-    case MBTC: return QString("Million-Flappycoins");            
-    case kBTC: return QString("Thousand-Flappycoins"); 
+    case MBTC: return QString("Million-Flappycoins (1 * 1,000,000)");            
+    case kBTC: return QString("Thousand-Flappycoins (1 * 1,000)"); 
     case BTC: return QString("Flappycoins");
     case mBTC: return QString("Milli-Flappycoins (1 / 1,000)");
     case uBTC: return QString("Micro-Flappycoins (1 / 1,000,000)");
